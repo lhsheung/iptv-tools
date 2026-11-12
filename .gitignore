@@ -1,0 +1,19 @@
+# 大体积第三方二进制与构建中间产物，不入库
+tools/
+_dl/
+build/
+_pytmp/
+dist/IPTVTools/
+
+# 运行时 / 本地状态
+config.json
+*.log
+dist/dpi_debug.txt
+__pycache__/
+*.pyc
+
+# 仅用于本地验证的截图与样例输出
+shot_*.png
+app.png
+app.ico
+e2e_out.dpl
