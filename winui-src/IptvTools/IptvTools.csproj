@@ -1,0 +1,74 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>IptvTools</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64;ARM64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishProfile>win-x64.pubxml</PublishProfile>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>false</EnableMsixTooling>
+    <WindowsPackageType>None</WindowsPackageType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <SelfContained>true</SelfContained>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <PublishSingleFile>false</PublishSingleFile>
+    <EnableDefaultNoneItems>true</EnableDefaultNoneItems>
+    <!-- WinUI 3 需要显式允许不安全块用于部分 interop -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!--
+      MVVMTK0045：提示 [ObservableProperty] 字段在 WinRT 场景下非 AOT 友好。
+      本项目当前为 JIT 发布（非 NativeAOT），属性也未被 XAML 直接 x:Bind 到，
+      故抑制该提示；若将来切 NativeAOT，需改用 partial property 写法。
+    -->
+    <NoWarn>$(NoWarn);MVVMTK0045</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <!--
+    把 Python Worker / FFmpeg / ip2region 一并复制到输出目录，做成"绿色版"：
+    双击 exe 即可运行，不需要用户另装 Python 之外的东西。
+    注意：这里用 Include + Link，源目录不在项目内，避免污染源码树。
+  -->
+  <ItemGroup>
+    <None Include="..\..\out\*.py">
+      <Link>worker\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <None Include="..\..\out\tools\ffmpeg\bin\ffmpeg.exe">
+      <Link>worker\tools\ffmpeg\bin\ffmpeg.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\out\tools\ffmpeg\bin\ffprobe.exe">
+      <Link>worker\tools\ffmpeg\bin\ffprobe.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <None Include="..\data\ip2region_master\**\*">
+      <Link>worker\ip2region_master\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\data\ip2region.xdb">
+      <Link>worker\ip2region.xdb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
